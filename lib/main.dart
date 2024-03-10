@@ -11,6 +11,7 @@ import 'widgets/reset_button.dart';
 import 'widgets/theme_toggle.dart';
 import 'pages/home_screen.dart';
 import 'pages/splash_screen.dart';
+import 'widgets/search_bar.dart';
 
 void main() {
   runApp(const MyApp());
