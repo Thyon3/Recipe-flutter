@@ -3,6 +3,12 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() {
   runApp(const MyApp());
+  
+  if (kIsWeb) {
+    debugPrint('Running on web platform');
+  } else {
+    debugPrint('Running on mobile platform');
+  }
 }
 
 class MyApp extends StatelessWidget {
