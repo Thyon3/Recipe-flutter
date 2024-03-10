@@ -18,9 +18,19 @@ void main() {
   
   if (kIsWeb) {
     debugPrint('Running on web platform');
+    debugPrint('Web browser detected: ${getBrowserInfo()}');
   } else {
     debugPrint('Running on mobile platform');
+    debugPrint('Mobile OS detected: ${getMobileOS()}');
   }
+}
+
+String getBrowserInfo() {
+  return 'Web Browser';
+}
+
+String getMobileOS() {
+  return 'Mobile OS';
 }
 
 class MyApp extends StatelessWidget {
