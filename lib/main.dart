@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'app_config.dart';
 
 void main() {
   runApp(const MyApp());
