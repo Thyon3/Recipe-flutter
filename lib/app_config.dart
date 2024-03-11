@@ -8,4 +8,8 @@ class AppConfig {
     'fontSize': 14.0,
     'enableNotifications': true,
   };
+  
+  static const String apiBaseUrl = 'https://api.recipetap.com';
+  static const int apiTimeoutSeconds = 30;
+  static const bool enableAnalytics = true;
 }
