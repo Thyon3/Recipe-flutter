@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const CounterDisplay(count: 0),
+            CounterDisplay(count: _counter),
             const SizedBox(height: 20),
             IncrementButton(
               onPressed: _incrementCounter,
