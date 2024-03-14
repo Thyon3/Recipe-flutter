@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'app_config.dart';
+import 'constants.dart';
+import 'utils.dart';
+import 'widgets/custom_scaffold.dart';
+import 'widgets/counter_display.dart';
+import 'widgets/increment_button.dart';
 
 void main() {
   runApp(const MyApp());
