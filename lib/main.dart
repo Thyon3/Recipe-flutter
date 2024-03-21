@@ -3,9 +3,12 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'app_config.dart';
 import 'constants.dart';
 import 'utils.dart';
+import 'themes/app_theme.dart';
 import 'widgets/custom_scaffold.dart';
 import 'widgets/counter_display.dart';
 import 'widgets/increment_button.dart';
+import 'widgets/reset_button.dart';
+import 'widgets/theme_toggle.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,16 +23,15 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: AppConfig.appName,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: const MyHomePage(title: 'Flutter Recipe Home'),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -62,9 +64,18 @@ class _MyHomePageState extends State<MyHomePage> {
       debugPrint('Counter incremented to: $_counter');
     });
   }
+  
+  void _resetCounter() {
+    setState(() {
+      _counter = 0;
+      debugPrint('Counter reset to: $_counter');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return CustomScaffold(
       title: widget.title,
       body: Center(
@@ -73,17 +84,31 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             CounterDisplay(count: _counter),
             const SizedBox(height: 20),
-            IncrementButton(
-              onPressed: _incrementCounter,
-              isLoading: false,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IncrementButton(
+                  onPressed: _incrementCounter,
+                  isLoading: false,
+                ),
+                ResetButton(
+                  onPressed: _resetCounter,
+                  isLoading: false,
+                ),
+              ],
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        onPressed: () {
+          AppUtils.showSnackBar(context, 'Theme: ${isDark ? "Dark" : "Light"}');
+        },
+        tooltip: 'Show Theme Info',
+        child: ThemeToggle(
+          isDark: isDark,
+          onPressed: () {},
+        ),
       ),
     );
   }
