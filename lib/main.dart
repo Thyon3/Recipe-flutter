@@ -12,6 +12,7 @@ import 'widgets/theme_toggle.dart';
 import 'pages/home_screen.dart';
 import 'pages/splash_screen.dart';
 import 'widgets/search_bar.dart';
+import 'services/storage_service.dart';
 
 void main() {
   runApp(const MyApp());
