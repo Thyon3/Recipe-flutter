@@ -32,8 +32,11 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const MyHomePage(title: 'Flutter Recipe Home'),
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/home': (context) => const MyHomePage(title: 'Flutter Recipe Home'),
+      },
     );
   }
 }
