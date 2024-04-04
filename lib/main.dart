@@ -107,11 +107,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: _incrementCounter,
                   isLoading: false,
                 ),
-                ResetButton(
-                  onPressed: _resetCounter,
+                DecrementButton(
+                  onPressed: () {
+                    setState(() {
+                      if (_counter > 0) {
+                        _counter--;
+                        debugPrint('Counter decremented to: $_counter');
+                      }
+                    });
+                  },
                   isLoading: false,
                 ),
               ],
+            ),
+            const SizedBox(height: 20),
+            ResetButton(
+              onPressed: _resetCounter,
+              isLoading: false,
             ),
           ],
         ),
