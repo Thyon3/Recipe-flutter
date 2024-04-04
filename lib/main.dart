@@ -9,6 +9,8 @@ import 'widgets/counter_display.dart';
 import 'widgets/increment_button.dart';
 import 'widgets/reset_button.dart';
 import 'widgets/theme_toggle.dart';
+import 'pages/home_screen.dart';
+import 'pages/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
