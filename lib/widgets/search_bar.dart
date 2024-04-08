@@ -18,6 +18,8 @@ class CustomSearchBar extends StatefulWidget {
     this.debounceDelay = AppConstants.debounceDelay,
     this.showSuggestions = false,
     this.suggestions,
+    this.enableVoiceSearch = false,
+    this.onVoiceSearch,
   });
   
   @override
