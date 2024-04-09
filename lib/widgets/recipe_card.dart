@@ -27,7 +27,6 @@ class RecipeCardWidget extends StatelessWidget {
     this.margin,
   });
   
-  @override
   Widget build(BuildContext context) {
     return Card(
       margin: margin ?? const EdgeInsets.symmetric(vertical: 4),
@@ -102,6 +101,29 @@ class RecipeCardWidget extends StatelessWidget {
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (recipe.isPremium == true)
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.amber,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'PRO',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
