@@ -6,12 +6,20 @@ class FilterDialog extends StatefulWidget {
   final List<String> categories;
   final List<String> selectedCategories;
   final Function(List<String>) onApply;
+  final String? title;
+  final bool multiSelect;
+  final int? maxSelections;
+  final VoidCallback? onClear;
   
   const FilterDialog({
     super.key,
     required this.categories,
     required this.selectedCategories,
     required this.onApply,
+    this.title,
+    this.multiSelect = true,
+    this.maxSelections,
+    this.onClear,
   });
   
   @override
@@ -39,56 +47,92 @@ class _FilterDialogState extends State<FilterDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Filter by Categories',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.title ?? 'Filter by Categories',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (widget.onClear != null)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedCategories.clear();
+                      });
+                      widget.onClear?.call();
+                    },
+                    child: const Text('Clear All'),
+                  ),
+              ],
             ),
             const SizedBox(height: 16),
+            Text(
+              widget.multiSelect ? 'Select multiple categories:' : 'Select one category:',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: widget.categories.map((category) {
+                final isSelected = _selectedCategories.contains(category);
+                final canSelect = widget.multiSelect || !isSelected || _selectedCategories.length <= 1;
+                
                 return CategoryChip(
                   label: category,
-                  isSelected: _selectedCategories.contains(category),
-                  onTap: () {
+                  isSelected: isSelected,
+                  onTap: canSelect ? () {
                     setState(() {
-                      if (_selectedCategories.contains(category)) {
-                        _selectedCategories.remove(category);
+                      if (widget.multiSelect) {
+                        if (isSelected) {
+                          _selectedCategories.remove(category);
+                        } else if (widget.maxSelections == null || _selectedCategories.length < widget.maxSelections!) {
+                          _selectedCategories.add(category);
+                        }
                       } else {
+                        _selectedCategories.clear();
                         _selectedCategories.add(category);
                       }
                     });
-                  },
+                  } : null,
+                  color: !canSelect ? Colors.grey[300] : null,
                 );
               }).toList(),
             ),
+            if (widget.maxSelections != null && widget.multiSelect)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  '${_selectedCategories.length}/${widget.maxSelections} selected',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedCategories.clear();
-                    });
-                  },
-                  child: const Text('Clear'),
-                ),
-                const SizedBox(width: 8),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Cancel'),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () {
-                    widget.onApply(_selectedCategories);
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: _selectedCategories.isNotEmpty
+                      ? () {
+                          widget.onApply(_selectedCategories);
+                          Navigator.of(context).pop();
+                        }
+                      : null,
                   child: const Text('Apply'),
                 ),
               ],
