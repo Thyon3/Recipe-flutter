@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../constants.dart';
 
 class LoadingWidget extends StatelessWidget {
@@ -157,6 +158,101 @@ class _PulsingLoadingWidgetState extends State<PulsingLoadingWidget>
           ),
         );
       },
+    );
+  }
+}
+
+class ProgressLoadingWidget extends StatefulWidget {
+  final String? message;
+  final double? size;
+  final Color? color;
+  final Duration duration;
+  final int totalSteps;
+  final Function(int)? onStepComplete;
+  
+  const ProgressLoadingWidget({
+    super.key,
+    this.message,
+    this.size,
+    this.color,
+    this.duration = const Duration(seconds: 3),
+    this.totalSteps = 3,
+    this.onStepComplete,
+  });
+  
+  @override
+  State<ProgressLoadingWidget> createState() => _ProgressLoadingWidgetState();
+}
+
+class _ProgressLoadingWidgetState extends State<ProgressLoadingWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  int _currentStep = 0;
+  
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: widget.duration,
+      vsync: this,
+    );
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+    _controller.addListener(_onAnimationUpdate);
+    _controller.forward();
+  }
+  
+  void _onAnimationUpdate() {
+    final step = (_animation.value * widget.totalSteps).floor();
+    if (step != _currentStep && step < widget.totalSteps) {
+      setState(() {
+        _currentStep = step;
+        widget.onStepComplete?.call(step);
+      });
+    }
+  }
+  
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: widget.size ?? 40,
+          height: widget.size ?? 40,
+          child: CircularProgressIndicator(
+            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              color ?? AppConstants.primaryColor,
+            ),
+          ),
+        ),
+        if (widget.message != null) ...[
+          const SizedBox(height: 16),
+          Text(
+            widget.message!,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+        const SizedBox(height: 8),
+        Text(
+          'Step ${_currentStep + 1} of ${widget.totalSteps}',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[400],
+          ),
+        ),
+      ],
     );
   }
 }
