@@ -8,6 +8,8 @@ class LoadingWidget extends StatelessWidget {
   final Color? color;
   final double? strokeWidth;
   final String? loadingText;
+  final bool showPercentage;
+  final double? progress;
   
   const LoadingWidget({
     super.key,
@@ -16,6 +18,8 @@ class LoadingWidget extends StatelessWidget {
     this.color,
     this.strokeWidth,
     this.loadingText,
+    this.showPercentage = false,
+    this.progress,
   });
   
   @override
@@ -29,6 +33,7 @@ class LoadingWidget extends StatelessWidget {
             height: size ?? 40,
             child: CircularProgressIndicator(
               strokeWidth: strokeWidth ?? 3,
+              value: showPercentage ? progress : null,
               valueColor: AlwaysStoppedAnimation<Color>(
                 color ?? AppConstants.primaryColor,
               ),
@@ -49,6 +54,16 @@ class LoadingWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               loadingText!,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[400],
+              ),
+            ),
+          ],
+          if (showPercentage && progress != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              '${(progress! * 100).toInt()}%',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[400],
