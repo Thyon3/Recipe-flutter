@@ -14,6 +14,8 @@ class EmptyStateWidget extends StatelessWidget {
   final bool showAnimation;
   final bool showRetryButton;
   final VoidCallback? onRetry;
+  final bool showError;
+  final String? errorMessage;
   
   const EmptyStateWidget({
     super.key,
@@ -29,6 +31,8 @@ class EmptyStateWidget extends StatelessWidget {
     this.showAnimation = true,
     this.showRetryButton = false,
     this.onRetry,
+    this.showError = false,
+    this.errorMessage,
   });
   
   @override
@@ -36,7 +40,7 @@ class EmptyStateWidget extends StatelessWidget {
     Widget iconWidget = customIcon ?? Icon(
       icon,
       size: 80,
-      color: iconColor ?? Colors.grey[400],
+      color: showError ? Colors.red : (iconColor ?? Colors.grey[400]),
     );
     
     if (showAnimation) {
@@ -60,22 +64,32 @@ class EmptyStateWidget extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: showError ? Colors.red : Colors.black87,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
+          if (showError && errorMessage != null)
+            Text(
+              errorMessage!,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.red,
+              ),
+              textAlign: TextAlign.center,
+            )
+          else
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -86,7 +100,7 @@ class EmptyStateWidget extends StatelessWidget {
                   icon: const Icon(Icons.refresh),
                   label: 'Retry',
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: showError ? Colors.red : Colors.orange,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -96,7 +110,7 @@ class EmptyStateWidget extends StatelessWidget {
                 ElevatedButton(
                   onPressed: onAction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppConstants.primaryColor,
+                    backgroundColor: showError ? Colors.grey[600] : AppConstants.primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
