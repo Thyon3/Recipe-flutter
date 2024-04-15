@@ -12,6 +12,8 @@ class EmptyStateWidget extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final Widget? customIcon;
   final bool showAnimation;
+  final bool showRetryButton;
+  final VoidCallback? onRetry;
   
   const EmptyStateWidget({
     super.key,
@@ -25,6 +27,8 @@ class EmptyStateWidget extends StatelessWidget {
     this.padding,
     this.customIcon,
     this.showAnimation = true,
+    this.showRetryButton = false,
+    this.onRetry,
   });
   
   @override
@@ -72,21 +76,37 @@ class EmptyStateWidget extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          if (actionText != null && onAction != null) ...[
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: onAction,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppConstants.primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (showRetryButton && onRetry != null)
+                ElevatedButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh),
+                  label: 'Retry',
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
-              ),
-              child: Text(actionText!),
-            ),
-          ],
+              if (actionText != null && onAction != null)
+                const SizedBox(width: 16),
+              if (actionText != null && onAction != null)
+                ElevatedButton(
+                  onPressed: onAction,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppConstants.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: Text(actionText!),
+                ),
+            ],
+          ),
         ],
       ),
     );
