@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import '../constants.dart';
 import 'loading_widget.dart';
 
@@ -20,6 +21,10 @@ class NetworkImageWidget extends StatelessWidget {
   final Duration fadeInDuration;
   final bool enableRetry;
   final int maxRetries;
+  final bool enablePlaceholder;
+  final bool enableBlur;
+  final double? blurAmount;
+  final Color? overlayColor;
   
   const NetworkImageWidget({
     super.key,
@@ -40,6 +45,10 @@ class NetworkImageWidget extends StatelessWidget {
     this.fadeInDuration = const Duration(milliseconds: 300),
     this.enableRetry = true,
     this.maxRetries = 3,
+    this.enablePlaceholder = true,
+    this.enableBlur = false,
+    this.blurAmount,
+    this.overlayColor,
   });
   
   @override
@@ -89,6 +98,36 @@ class NetworkImageWidget extends StatelessWidget {
         onError: onError,
       );
     }
+    
+    imageWidget = Stack(
+      children: [
+        imageWidget,
+        if (enableBlur && blurAmount != null)
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(
+                  sigmaX: blurAmount!,
+                  sigmaY: blurAmount!,
+                ),
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
+          ),
+        if (overlayColor != null)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: overlayColor,
+                borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
+              ),
+            ),
+          ),
+      ],
+    );
     
     return GestureDetector(
       onTap: onTap,
