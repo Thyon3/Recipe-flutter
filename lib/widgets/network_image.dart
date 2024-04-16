@@ -15,6 +15,11 @@ class NetworkImageWidget extends StatelessWidget {
   final String? cacheKey;
   final VoidCallback? onTap;
   final VoidCallback? onError;
+  final double? borderRadius;
+  final bool enableFadeIn;
+  final Duration fadeInDuration;
+  final bool enableRetry;
+  final int maxRetries;
   
   const NetworkImageWidget({
     super.key,
@@ -30,49 +35,73 @@ class NetworkImageWidget extends StatelessWidget {
     this.cacheKey,
     this.onTap,
     this.onError,
+    this.borderRadius,
+    this.enableFadeIn = true,
+    this.fadeInDuration = const Duration(milliseconds: 300),
+    this.enableRetry = true,
+    this.maxRetries = 3,
   });
   
   @override
   Widget build(BuildContext context) {
+    Widget imageWidget = Image.network(
+      imageUrl: imageUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (!showLoading) return child;
+        return Center(
+          child: LoadingWidget(
+            size: 30,
+            message: 'Loading...',
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        if (onError != null) {
+          onError();
+        }
+        debugPrint('Error loading image: $error');
+        return errorWidget ?? _buildDefaultError();
+      },
+      frameBuilder: (context, child, frame) {
+        if (!enableFadeIn) return child;
+        return AnimatedOpacity(
+          opacity: frame != null ? 1.0 : 0.0,
+          duration: fadeInDuration,
+          child: child,
+        );
+      },
+    );
+    
+    if (enableCache && cacheKey != null) {
+      imageWidget = CachedNetworkImage(
+        imageUrl: imageUrl,
+        width: width,
+        height: height,
+        fit: fit,
+        placeholder: placeholder,
+        errorWidget: errorWidget,
+        cacheKey: cacheKey,
+        timeout: timeout,
+        onTap: onTap,
+        onError: onError,
+      );
+    }
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
           color: Colors.grey[200],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          child: Image.network(
-            imageUrl: imageUrl,
-            width: width,
-            height: height,
-            fit: fit,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (!showLoading) return child;
-              return Center(
-                child: LoadingWidget(
-                  size: 30,
-                  message: 'Loading...',
-                ),
-              );
-            },
-            errorBuilder: (context, error, stackTrace) {
-              if (onError != null) {
-                onError();
-              }
-              debugPrint('Error loading image: $error');
-              return errorWidget ?? _buildDefaultError();
-            },
-            frameBuilder: (context, child, frame) {
-              if (frame != null) {
-                return child;
-              }
-              return _buildDefaultPlaceholder();
-            },
-          ),
+          borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
+          child: imageWidget,
         ),
       ),
     );
@@ -128,17 +157,19 @@ class NetworkImageWidget extends StatelessWidget {
                 fontSize: 12,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Tap to retry',
-              style: TextStyle(
-                color: Colors.blue[600],
-                fontSize: 10,
-                decoration: TextDecoration(
-                  decoration: TextDecoration.underline,
+            if (enableRetry) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Tap to retry',
+                style: TextStyle(
+                  color: Colors.blue[600],
+                  fontSize: 10,
+                  decoration: TextDecoration(
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
