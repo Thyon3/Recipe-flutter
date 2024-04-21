@@ -40,133 +40,185 @@ class CustomSliverAppBar extends StatelessWidget {
               ),
             ),
             background: background ??
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppConstants.primaryColor,
-                        AppConstants.primaryColor.withOpacity(0.7),
-                      ],
-                    ),
-                  ),
-                ),
-          ),
-      actions: actions,
-      backgroundColor: AppConstants.primaryColor,
-      foregroundColor: Colors.white,
-    );
-  }
 }
 
-class SearchSliverAppBar extends StatefulWidget {
-  final String title;
-  final Function(String) onSearch;
-  final TextEditingController? controller;
-  final bool autofocus;
-  final String hintText;
-  
-  const SearchSliverAppBar({
-    super.key,
-    required this.title,
-    required this.onSearch,
-    this.controller,
-    this.autofocus = false,
-    this.hintText = 'Search...',
-  });
-  
-  @override
-  State<SearchSliverAppBar> createState() => _SearchSliverAppBarState();
-}
-
-class _SearchSliverAppBarState extends State<SearchSliverAppBar> {
-  late TextEditingController _controller;
+class _CustomSliverAppBarState extends State<CustomSliverAppBar> {
   bool _isSearching = false;
-  
-  @override
-  void initState() {
-    super.initState();
-    _controller = widget.controller ?? TextEditingController();
-  }
+  TextEditingController _searchController = TextEditingController();
   
   @override
   void dispose() {
-    if (widget.controller == null) {
-      _controller.dispose();
-    }
+    _searchController.dispose();
     super.dispose();
   }
   
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      pinned: true,
-      expandedHeight: 120,
-      flexibleSpace: FlexibleSpaceBar(
-        title: _isSearching
-            ? null
-            : Text(
-                widget.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppConstants.primaryColor,
-                AppConstants.primaryColor.withOpacity(0.8),
-              ],
-            ),
-          ),
-          child: _isSearching
-              ? Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    controller: _controller,
-                    autofocus: widget.autofocus,
-                    decoration: InputDecoration(
-                      hintText: widget.hintText,
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          setState(() {
-                            _isSearching = false;
-                            _controller.clear();
-                          });
-                        },
-                      ),
-                    ),
-                    onSubmitted: widget.onSearch,
-                  ),
-                )
-              : null,
-        ),
-      ),
-      actions: [
+      title: _isSearching ? null : Text(widget.title),
+      actions: _buildActions(),
+      leading: widget.leading,
+      automaticallyImplyLeading: widget.automaticallyImplyLeading,
+      pinned: widget.pinned,
+      snap: widget.snap,
+      floating: widget.floating,
+      expandedHeight: widget.expandedHeight ?? (widget.showSearchBar ? 120 : 80),
+      backgroundColor: widget.backgroundColor,
+      foregroundColor: widget.foregroundColor,
+      elevation: widget.elevation,
+      toolbarHeight: widget.toolbarHeight,
+      titleTextStyle: widget.titleTextStyle,
+      iconTheme: widget.iconTheme,
+      centerTitle: widget.centerTitle,
+      collapsedHeight: widget.collapsedHeight,
+      stretch: widget.stretch,
+      stretchTriggerOffset: widget.stretchTriggerOffsetValue ?? 100.0,
+      flexibleSpace: _buildFlexibleSpace(),
+    );
+  }
+  
+  List<Widget>? _buildActions() {
+    if (_isSearching) {
+      return [
         IconButton(
-          icon: Icon(_isSearching ? Icons.close : Icons.search),
+          icon: const Icon(Icons.close),
           onPressed: () {
             setState(() {
-              _isSearching = !_isSearching;
-              if (!_isSearching) {
-                _controller.clear();
-              }
+              _isSearching = false;
+              _searchController.clear();
             });
           },
         ),
+      ];
+    }
+    
+    List<Widget> actions = [];
+    
+    if (widget.showSearchBar) {
+      actions.add(
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () {
+            setState(() {
+              _isSearching = true;
+            });
+          },
+        ),
+      );
+    }
+    
+    if (widget.actions != null) {
+      actions.addAll(widget.actions!);
+    }
+    
+    return actions.isEmpty ? null : actions;
+  }
+  
+  Widget? _buildFlexibleSpace() {
+    if (widget.flexibleSpace != null) {
+      return widget.flexibleSpace;
+    }
+    
+    if (widget.showSearchBar && _isSearching) {
+      return Container(
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        child: CustomSearchBar(
+          onSearch: widget.onSearch ?? (query) {},
+          hintText: widget.searchHint ?? 'Search...',
+          autofocus: true,
+          controller: _searchController,
+          suggestions: widget.searchSuggestions,
+          showSuggestions: widget.searchSuggestions != null,
+        ),
+      );
+    }
+    
+    if (widget.showSearchBar) {
+      return Container(
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              widget.title,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: widget.foregroundColor ?? Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            CustomSearchBar(
+              onSearch: widget.onSearch ?? (query) {},
+              hintText: widget.searchHint ?? 'Search...',
+              controller: _searchController,
+              suggestions: widget.searchSuggestions,
+              showSuggestions: widget.searchSuggestions != null,
+            ),
+          ],
+        ),
+      );
+    }
+    
+    return null;
+  }
+}
+
+class CollapsingSliverAppBar extends StatelessWidget {
+  final String title;
+  final Widget background;
+  final List<Widget>? actions;
+  final Widget? leading;
+  final double expandedHeight;
+  final bool pinned;
+  final bool floating;
+  final bool snap;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final bool centerTitle;
+  final TextStyle? titleTextStyle;
+  
+  const CollapsingSliverAppBar({
+    super.key,
+    required this.title,
+    required this.background,
+    this.actions,
+    this.leading,
+    this.expandedHeight = 200,
+    this.pinned = true,
+    this.floating = false,
+    this.snap = false,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.centerTitle = true,
+    this.titleTextStyle,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      title: Text(title),
+      actions: actions,
+      leading: leading,
+      pinned: pinned,
+      floating: floating,
+      snap: snap,
+      expandedHeight: expandedHeight,
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      centerTitle: centerTitle,
+      titleTextStyle: titleTextStyle,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          title,
+          style: TextStyle(
+            color: foregroundColor ?? Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        background: background,
+        collapseMode: CollapseMode.parallax,
+      ),
       ],
       backgroundColor: AppConstants.primaryColor,
       foregroundColor: Colors.white,
