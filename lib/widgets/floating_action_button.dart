@@ -109,6 +109,13 @@ class SpeedDialFab extends StatefulWidget {
   final double? rotationAngle;
   final bool enableAnimation;
   final bool switchLabelPosition;
+  final Alignment alignment;
+  final double? childPadding;
+  final double? childMargin;
+  final bool enableTooltip;
+  final bool closeOnTap;
+  final bool useChildAnimation;
+  final Duration childAnimationDelay;
 
   const SpeedDialFab({
     super.key,
@@ -143,6 +150,13 @@ class SpeedDialFab extends StatefulWidget {
     this.rotationAngle = 45.0,
     this.enableAnimation = true,
     this.switchLabelPosition = false,
+    this.alignment = Alignment.bottomRight,
+    this.childPadding,
+    this.childMargin,
+    this.enableTooltip = true,
+    this.closeOnTap = true,
+    this.useChildAnimation = true,
+    this.childAnimationDelay = const Duration(milliseconds: 50),
   });
 
   @override
@@ -183,26 +197,29 @@ class _SpeedDialFabState extends State<SpeedDialFab> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Stack(
-      alignment: Alignment.bottomCenter,
+      alignment: widget.alignment,
       children: [
         if (widget.renderOverlay)
           AnimatedBuilder(
             animation: _expandAnimation,
             builder: (context, child) {
-              return Opacity(
-                opacity: _isOpen ? (widget.overlayOpacity ?? 0.8) : 0.0,
-                child: Container(
-                  color: widget.overlayColor ?? Colors.black,
+              return GestureDetector(
+                onTap: widget.closeOnTap && _isOpen ? _toggle : null,
+                child: Opacity(
+                  opacity: _isOpen ? (widget.overlayOpacity ?? 0.8) : 0.0,
+                  child: Container(
+                    color: widget.overlayColor ?? Colors.black,
+                  ),
                 ),
               );
             },
           ),
         Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: _getCrossAxisAlignment(),
           children: [
             ...widget.children.map((child) => _buildSpeedDialChild(child)),
-            const SizedBox(height: widget.spacing ?? 16),
+            SizedBox(height: widget.spacing ?? 16),
             _buildMainFab(),
           ],
         ),
@@ -210,12 +227,27 @@ class _SpeedDialFabState extends State<SpeedDialFab> with TickerProviderStateMix
     );
   }
 
+  CrossAxisAlignment _getCrossAxisAlignment() {
+    switch (widget.alignment) {
+      case Alignment.bottomLeft:
+      case Alignment.topLeft:
+      case Alignment.centerLeft:
+        return CrossAxisAlignment.start;
+      case Alignment.bottomRight:
+      case Alignment.topRight:
+      case Alignment.centerRight:
+        return CrossAxisAlignment.end;
+      default:
+        return CrossAxisAlignment.center;
+    }
+  }
+
   Widget _buildMainFab() {
     return Transform.rotate(
       angle: widget.useRotationAnimation ? _rotateAnimation.value * 0.0174533 : 0.0,
       child: FloatingActionButton(
         onPressed: _toggle,
-        tooltip: widget.tooltip,
+        tooltip: widget.enableTooltip ? widget.tooltip : null,
         backgroundColor: _isOpen
             ? (widget.activeBackgroundColor ?? Colors.red)
             : (widget.backgroundColor ?? AppConstants.primaryColor),
@@ -225,6 +257,7 @@ class _SpeedDialFabState extends State<SpeedDialFab> with TickerProviderStateMix
         elevation: widget.elevation,
         mini: widget.mini,
         shape: widget.shape,
+        heroTag: widget.heroTag,
         child: _isOpen
             ? (widget.activeIcon ?? const Icon(Icons.close))
             : (widget.icon ?? const Icon(Icons.add)),
@@ -236,50 +269,117 @@ class _SpeedDialFabState extends State<SpeedDialFab> with TickerProviderStateMix
     return AnimatedBuilder(
       animation: _expandAnimation,
       builder: (context, childWidget) {
-        return Transform.translate(
-          offset: Offset(
-            0.0,
-            _expandAnimation.value * -(widget.children.indexOf(child) + 1) * 56.0,
-          ),
-          child: Opacity(
-            opacity: _expandAnimation.value,
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (child.label != null)
-                    Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black87,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        child.label!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  FloatingActionButton(
-                    onPressed: child.onTap,
-                    tooltip: child.tooltip,
-                    backgroundColor: child.backgroundColor ?? AppConstants.primaryColor,
-                    foregroundColor: child.foregroundColor ?? Colors.white,
-                    elevation: child.elevation ?? 4.0,
-                    mini: true,
-                    heroTag: child.heroTag,
-                    child: child.child,
+        final index = widget.children.indexOf(child);
+        final delay = widget.useChildAnimation
+            ? Duration(milliseconds: widget.childAnimationDelay.inMilliseconds * index)
+            : Duration.zero;
+
+        return TweenAnimationBuilder<double>(
+          duration: widget.animationDuration,
+          tween: Tween<double>(begin: 0.0, end: _expandAnimation.value),
+          curve: widget.curve,
+          builder: (context, value, child) {
+            return Transform.translate(
+              offset: _calculateOffset(index, value),
+              child: Opacity(
+                opacity: value,
+                child: Container(
+                  margin: EdgeInsets.symmetric(
+                    vertical: widget.childMargin ?? 4,
+                    horizontal: widget.childMargin ?? 0,
                   ),
-                ],
+                  padding: EdgeInsets.all(widget.childPadding ?? 0),
+                  child: Row(
+                    mainAxisAlignment: _getMainAxisAlignment(),
+                    children: [
+                      if (child.label != null && !widget.switchLabelPosition)
+                        _buildLabel(child),
+                      FloatingActionButton(
+                        onPressed: () {
+                          child.onTap();
+                          if (widget.closeOnTap) {
+                            _toggle();
+                          }
+                        },
+                        tooltip: widget.enableTooltip ? child.tooltip : null,
+                        backgroundColor: child.backgroundColor ?? AppConstants.primaryColor,
+                        foregroundColor: child.foregroundColor ?? Colors.white,
+                        elevation: child.elevation ?? 4.0,
+                        mini: true,
+                        heroTag: child.heroTag,
+                        child: child.child,
+                      ),
+                      if (child.label != null && widget.switchLabelPosition)
+                        _buildLabel(child),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
+    );
+  }
+
+  Offset _calculateOffset(int index, double animationValue) {
+    switch (widget.alignment) {
+      case Alignment.bottomLeft:
+      case Alignment.topLeft:
+        return Offset(
+          animationValue * (index + 1) * 56.0,
+          0.0,
+        );
+      case Alignment.bottomRight:
+      case Alignment.topRight:
+        return Offset(
+          -animationValue * (index + 1) * 56.0,
+          0.0,
+        );
+      case Alignment.topCenter:
+      case Alignment.bottomCenter:
+        return Offset(
+          0.0,
+          animationValue * -(index + 1) * 56.0,
+        );
+      default:
+        return Offset(
+          0.0,
+          -animationValue * (index + 1) * 56.0,
+        );
+    }
+  }
+
+  MainAxisAlignment _getMainAxisAlignment() {
+    switch (widget.alignment) {
+      case Alignment.bottomLeft:
+      case Alignment.topLeft:
+      case Alignment.centerLeft:
+        return MainAxisAlignment.start;
+      case Alignment.bottomRight:
+      case Alignment.topRight:
+      case Alignment.centerRight:
+        return MainAxisAlignment.end;
+      default:
+        return MainAxisAlignment.center;
+    }
+  }
+
+  Widget _buildLabel(SpeedDialChild child) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        child.label!,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+        ),
+      ),
     );
   }
 
