@@ -8,10 +8,38 @@ class CustomListTile extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
-  final bool selected;
-  final Color? selectedColor;
+  final bool isThreeLine;
+  final bool? dense;
   final EdgeInsetsGeometry? contentPadding;
-  
+  final Color? tileColor;
+  final Color? selectedTileColor;
+  final Color? textColor;
+  final Color? iconColor;
+  final TextStyle? titleTextStyle;
+  final TextStyle? subtitleTextStyle;
+  final TextStyle? leadingTextStyle;
+  final TextStyle? trailingTextStyle;
+  final ShapeBorder? shape;
+  final bool selected;
+  final bool autofocus;
+  final bool enableFeedback;
+  final FocusNode? focusNode;
+  final bool mouseCursor;
+  final bool horizontalTitleGap;
+  final double? minVerticalPadding;
+  final double? minLeadingWidth;
+  final bool enableSelection;
+  final Color? selectedColor;
+  final Color? splashColor;
+  final double? borderRadius;
+  final double? elevation;
+  final bool showDivider;
+  final Color? dividerColor;
+  final double? dividerHeight;
+  final bool showLeadingBorder;
+  final Color? leadingBorderColor;
+  final double? leadingBorderWidth;
+
   const CustomListTile({
     super.key,
     this.leading,
@@ -20,17 +48,62 @@ class CustomListTile extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.onLongPress,
-    this.selected = false,
-    this.selectedColor,
+    this.isThreeLine = false,
+    this.dense,
     this.contentPadding,
+    this.tileColor,
+    this.selectedTileColor,
+    this.textColor,
+    this.iconColor,
+    this.titleTextStyle,
+    this.subtitleTextStyle,
+    this.leadingTextStyle,
+    this.trailingTextStyle,
+    this.shape,
+    this.selected = false,
+    this.autofocus = false,
+    this.enableFeedback = true,
+    this.focusNode,
+    this.mouseCursor = true,
+    this.horizontalTitleGap = true,
+    this.minVerticalPadding,
+    this.minLeadingWidth,
+    this.enableSelection = false,
+    this.selectedColor,
+    this.splashColor,
+    this.borderRadius,
+    this.elevation,
+    this.showDivider = false,
+    this.dividerColor,
+    this.dividerHeight,
+    this.showLeadingBorder = false,
+    this.leadingBorderColor,
+    this.leadingBorderWidth,
   });
-  
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    Widget tile = Container(
       decoration: BoxDecoration(
-        color: selected ? (selectedColor ?? Colors.grey[200]) : null,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        color: selected ? (selectedTileColor ?? Colors.grey[200]) : tileColor,
+        borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
+        border: showLeadingBorder && leading != null
+            ? Border(
+                left: BorderSide(
+                  color: leadingBorderColor ?? AppConstants.primaryColor,
+                  width: leadingBorderWidth ?? 3.0,
+                ),
+              )
+            : null,
+        boxShadow: elevation != null
+            ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: elevation!,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: ListTile(
         leading: leading,
@@ -39,17 +112,45 @@ class CustomListTile extends StatelessWidget {
         trailing: trailing,
         onTap: onTap,
         onLongPress: onLongPress,
-        selected: selected,
-        contentPadding: contentPadding ?? 
-            const EdgeInsets.symmetric(
-              horizontal: AppConstants.defaultPadding,
-              vertical: 4,
-            ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        isThreeLine: isThreeLine,
+        dense: dense,
+        contentPadding: contentPadding ?? const EdgeInsets.symmetric(
+          horizontal: AppConstants.defaultPadding,
+          vertical: 8,
         ),
+        textColor: textColor,
+        iconColor: iconColor,
+        titleTextStyle: titleTextStyle,
+        subtitleTextStyle: subtitleTextStyle,
+        leadingTextStyle: leadingTextStyle,
+        trailingTextStyle: trailingTextStyle,
+        shape: shape,
+        selected: selected,
+        autofocus: autofocus,
+        enableFeedback: enableFeedback,
+        focusNode: focusNode,
+        mouseCursor: mouseCursor ? SystemMouseCursors.click : null,
+        horizontalTitleGap: horizontalTitleGap,
+        minVerticalPadding: minVerticalPadding,
+        minLeadingWidth: minLeadingWidth,
+        selectedColor: selectedColor,
+        splashColor: splashColor,
       ),
     );
+
+    if (showDivider) {
+      tile = Column(
+        children: [
+          tile,
+          Container(
+            height: dividerHeight ?? 1.0,
+            color: dividerColor ?? Colors.grey[300],
+          ),
+        ],
+      );
+    }
+
+    return tile;
   }
 }
 
@@ -63,7 +164,7 @@ class RecipeListTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
   final bool isFavorite;
-  
+
   const RecipeListTile({
     super.key,
     required this.title,
@@ -76,7 +177,7 @@ class RecipeListTile extends StatelessWidget {
     this.onFavorite,
     this.isFavorite = false,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Card(
