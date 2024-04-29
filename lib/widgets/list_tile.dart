@@ -164,6 +164,28 @@ class RecipeListTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
   final bool isFavorite;
+  final bool showRating;
+  final bool showCookTime;
+  final bool showDifficulty;
+  final double? borderRadius;
+  final double? elevation;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? iconColor;
+  final bool showTrailingIcon;
+  final IconData? trailingIcon;
+  final VoidCallback? onTrailingTap;
+  final bool showLeadingBorder;
+  final Color? leadingBorderColor;
+  final double? leadingBorderWidth;
+  final bool isSelected;
+  final Color? selectedColor;
+  final bool enableRipple;
+  final double? imageWidth;
+  final double? imageHeight;
+  final BoxFit imageFit;
+  final String? placeholderImage;
+  final bool showPlaceholder;
 
   const RecipeListTile({
     super.key,
@@ -176,104 +198,196 @@ class RecipeListTile extends StatelessWidget {
     required this.onTap,
     this.onFavorite,
     this.isFavorite = false,
+    this.showRating = true,
+    this.showCookTime = true,
+    this.showDifficulty = true,
+    this.borderRadius,
+    this.elevation,
+    this.backgroundColor,
+    this.textColor,
+    this.iconColor,
+    this.showTrailingIcon = false,
+    this.trailingIcon,
+    this.onTrailingTap,
+    this.showLeadingBorder = false,
+    this.leadingBorderColor,
+    this.leadingBorderWidth,
+    this.isSelected = false,
+    this.selectedColor,
+    this.enableRipple = true,
+    this.imageWidth,
+    this.imageHeight,
+    this.imageFit = BoxFit.cover,
+    this.placeholderImage,
+    this.showPlaceholder = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
-      child: CustomListTile(
-        contentPadding: const EdgeInsets.all(8),
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          child: Image.network(
-            imageUrl,
-            width: 60,
-            height: 60,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                width: 60,
-                height: 60,
-                color: Colors.grey[200],
-                child: const Icon(Icons.restaurant),
-              );
-            },
-          ),
+      elevation: elevation ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
+          border: showLeadingBorder
+              ? Border(
+                  left: BorderSide(
+                    color: leadingBorderColor ?? AppConstants.primaryColor,
+                    width: leadingBorderWidth ?? 3.0,
+                  ),
+                )
+              : null,
+          color: isSelected ? (selectedColor ?? Colors.grey[100]) : backgroundColor,
         ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (subtitle != null) ...[
-              Text(
-                subtitle!,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-            ],
-            Row(
-              children: [
-                if (cookTime != null) ...[
-                  Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    cookTime!,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
+        child: CustomListTile(
+          contentPadding: const EdgeInsets.all(8),
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+            child: Image.network(
+              imageUrl,
+              width: imageWidth ?? 60,
+              height: imageHeight ?? 60,
+              fit: imageFit,
+              errorBuilder: (context, error, stackTrace) {
+                if (showPlaceholder && placeholderImage != null) {
+                  return Image.network(
+                    placeholderImage!,
+                    width: imageWidth ?? 60,
+                    height: imageHeight ?? 60,
+                    fit: imageFit,
+                  );
+                }
+                return Container(
+                  width: imageWidth ?? 60,
+                  height: imageHeight ?? 60,
+                  color: Colors.grey[200],
+                  child: const Icon(
+                    Icons.broken_image,
+                    color: Colors.grey,
                   ),
-                  const SizedBox(width: 12),
-                ],
-                if (difficulty != null) ...[
-                  Icon(Icons.signal_cellular_alt, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    difficulty!,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  width: imageWidth ?? 60,
+                  height: imageHeight ?? 60,
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: CircularProgressIndicator(),
                   ),
-                  const SizedBox(width: 12),
-                ],
-                if (rating != null) ...[
-                  Icon(Icons.star, size: 16, color: Colors.amber),
-                  const SizedBox(width: 4),
-                  Text(
-                    rating.toString(),
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ],
+                );
+              },
             ),
-          ],
-        ),
-        trailing: onFavorite != null
-            ? IconButton(
-                onPressed: onFavorite,
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : Colors.grey,
+          ),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: textColor ?? Colors.black87,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (subtitle != null)
+                Text(
+                  subtitle!,
+                  style: TextStyle(
+                    color: textColor?.withOpacity(0.7) ?? Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              )
-            : null,
-        onTap: onTap,
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  if (showCookTime && cookTime != null) ...[
+                    Icon(
+                      Icons.access_time,
+                      size: 14,
+                      color: iconColor ?? Colors.grey[600],
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$cookTime min',
+                      style: TextStyle(
+                        color: textColor?.withOpacity(0.7) ?? Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                  if (showDifficulty && difficulty != null) ...[
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.signal_cellular_alt,
+                      size: 14,
+                      color: iconColor ?? Colors.grey[600],
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      difficulty!,
+                      style: TextStyle(
+                        color: textColor?.withOpacity(0.7) ?? Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              if (showRating && rating != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.star,
+                      size: 14,
+                      color: Colors.amber,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      rating!.toStringAsFixed(1),
+                      style: TextStyle(
+                        color: textColor?.withOpacity(0.7) ?? Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (onFavorite != null)
+                IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : (iconColor ?? Colors.grey[600]),
+                  ),
+                  onPressed: onFavorite,
+                ),
+              if (showTrailingIcon && trailingIcon != null)
+                IconButton(
+                  icon: Icon(
+                    trailingIcon,
+                    color: iconColor ?? Colors.grey[600],
+                  ),
+                  onPressed: onTrailingTap,
+                ),
+            ],
+          ),
+          onTap: onTap,
+          enableRipple: enableRipple,
+        ),
       ),
     );
   }
