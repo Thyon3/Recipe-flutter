@@ -3,138 +3,212 @@ import '../constants.dart';
 
 class CustomChip extends StatelessWidget {
   final String label;
-  final VoidCallback? onDelete;
-  final VoidCallback? onTap;
+  final Widget? avatar;
+  final Widget? deleteIcon;
+  final VoidCallback? onDeleted;
+  final VoidCallback? onPressed;
   final Color? backgroundColor;
   final Color? textColor;
-  final Color? deleteIconColor;
-  final bool deletable;
-  final bool selected;
+  final Color? disabledColor;
+  final Color? selectedColor;
+  final Color? shadowColor;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? labelPadding;
+  final TextStyle? labelStyle;
+  final BorderSide? side;
+  final OutlinedBorder? shape;
+  final Clip clipBehavior;
+  final FocusNode? focusNode;
+  final bool autofocus;
+  final Color? splashColor;
+  final MaterialTapTargetSize? materialTapTargetSize;
+  final double? elevation;
+  final bool pressElevation;
+  final Color? pressColor;
+  final bool showCheckmark;
+  final bool isSelected;
+  final bool enableFeedback;
+  final bool allowChipTap;
+  final double? borderRadius;
+  final bool showIcon;
+  final IconData? icon;
+  final Color? iconColor;
+  final double? iconSize;
+  final bool showBadge;
+  final String? badgeText;
+  final Color? badgeColor;
+  final Color? badgeTextColor;
+  final bool animated;
+  final Duration animationDuration;
+  final Curve animationCurve;
   
   const CustomChip({
     super.key,
     required this.label,
-    this.onDelete,
-    this.onTap,
+    this.avatar,
+    this.deleteIcon,
+    this.onDeleted,
+    this.onPressed,
     this.backgroundColor,
     this.textColor,
-    this.deleteIconColor,
-    this.deletable = false,
-    this.selected = false,
+    this.disabledColor,
+    this.selectedColor,
+    this.shadowColor,
     this.padding,
+    this.labelPadding,
+    this.labelStyle,
+    this.side,
+    this.shape,
+    this.clipBehavior = Clip.none,
+    this.focusNode,
+    this.autofocus = false,
+    this.splashColor,
+    this.materialTapTargetSize,
+    this.elevation,
+    this.pressElevation = true,
+    this.pressColor,
+    this.showCheckmark = false,
+    this.isSelected = false,
+    this.enableFeedback = true,
+    this.allowChipTap = true,
+    this.borderRadius,
+    this.showIcon = false,
+    this.icon,
+    this.iconColor,
+    this.iconSize,
+    this.showBadge = false,
+    this.badgeText,
+    this.badgeColor,
+    this.badgeTextColor,
+    this.animated = true,
+    this.animationDuration = AppConstants.animationDuration,
+    this.animationCurve = Curves.easeInOut,
   });
   
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: AppConstants.animationDuration,
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: backgroundColor ?? 
-              (selected ? AppConstants.primaryColor : Colors.grey[200]),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: selected ? AppConstants.primaryColor : Colors.grey[300]!,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: textColor ?? 
-                    (selected ? Colors.white : Colors.black87),
-                fontSize: 14,
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            if (deletable && onDelete != null) ...[
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: onDelete,
-                child: Icon(
-                  Icons.close,
-                  size: 16,
-                  color: deleteIconColor ?? 
-                      (selected ? Colors.white : Colors.grey[600]),
+    Widget chip = Container(
+      decoration: BoxDecoration(
+        color: isSelected ? (selectedColor ?? AppConstants.primaryColor) : backgroundColor,
+        borderRadius: BorderRadius.circular(borderRadius ?? 16),
+        border: side,
+        boxShadow: elevation != null
+            ? [
+                BoxShadow(
+                  color: shadowColor ?? Colors.black.withOpacity(0.1),
+                  blurRadius: elevation!,
+                  offset: const Offset(0, 2),
                 ),
-              ),
-            ],
-          ],
+              ]
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: allowChipTap ? onPressed : null,
+          borderRadius: BorderRadius.circular(borderRadius ?? 16),
+          child: Padding(
+            padding: padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (avatar != null) avatar,
+                if (showIcon && icon != null) ...[
+                  Icon(
+                    icon,
+                    size: iconSize ?? 16,
+                    color: iconColor ?? (isSelected ? Colors.white : textColor),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                if (showCheckmark)
+                  Icon(
+                    Icons.check,
+                    size: 16,
+                    color: isSelected ? Colors.white : textColor,
+                  ),
+                Flexible(
+                  child: Padding(
+                    padding: labelPadding ?? EdgeInsets.zero,
+                    child: Text(
+                      label,
+                      style: labelStyle ?? TextStyle(
+                        color: isSelected ? Colors.white : (textColor ?? Colors.black87),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                if (showBadge && badgeText != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: badgeColor ?? Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      badgeText!,
+                      style: TextStyle(
+                        color: badgeTextColor ?? Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+                if (deleteIcon != null)
+                  deleteIcon!,
+              ],
+            ),
+          ),
         ),
       ),
     );
-  }
-}
-
-class FilterChip extends StatefulWidget {
-  final String label;
-  final bool selected;
-  final ValueChanged<bool> onSelected;
-  final Color? selectedColor;
-  final Color? backgroundColor;
-  
-  const FilterChip({
-    super.key,
-    required this.label,
-    required this.selected,
-    required this.onSelected,
-    this.selectedColor,
-    this.backgroundColor,
-  });
-  
-  @override
-  State<FilterChip> createState() => _FilterChipState();
-}
-
-class _FilterChipState extends State<FilterChip> {
-  late bool _selected;
-  
-  @override
-  void initState() {
-    super.initState();
-    _selected = widget.selected;
-  }
-  
-  @override
-  void didUpdateWidget(FilterChip oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selected != widget.selected) {
-      setState(() {
-        _selected = widget.selected;
-      });
+    
+    if (animated) {
+      chip = AnimatedContainer(
+        duration: animationDuration,
+        curve: animationCurve,
+        child: chip,
+      );
     }
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    return CustomChip(
-      label: widget.label,
-      selected: _selected,
-      onTap: () {
-        setState(() {
-          _selected = !_selected;
-        });
-        widget.onSelected(_selected);
-      },
-      backgroundColor: widget.backgroundColor,
-      selectedColor: widget.selectedColor,
-    );
+    
+    return chip;
   }
 }
 
-class InputChip extends StatelessWidget {
+class ActionChip extends StatelessWidget {
   final String label;
-  final VoidCallback? onDelete;
-  final VoidCallback? onSelected;
-  final bool selected;
-  final Color? selectedColor;
+  final Widget? avatar;
+  final VoidCallback? onPressed;
   final Color? backgroundColor;
+  final Color? textColor;
+  final Color? disabledColor;
+  final Color? selectedColor;
+  final Color? shadowColor;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? labelPadding;
+  final TextStyle? labelStyle;
+  final BorderSide? side;
+  final OutlinedBorder? shape;
+  final Clip clipBehavior;
+  final FocusNode? focusNode;
+  final bool autofocus;
+  final Color? splashColor;
+  final MaterialTapTargetSize? materialTapTargetSize;
+  final double? elevation;
+  final bool pressElevation;
+  final Color? pressColor;
+  final bool enableFeedback;
+  final bool showIcon;
+  final IconData? icon;
+  final Color? iconColor;
+  final double? iconSize;
+  final bool animated;
+  final Duration animationDuration;
+  final Curve animationCurve;
   
   const InputChip({
     super.key,
