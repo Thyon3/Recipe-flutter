@@ -210,15 +210,132 @@ class ActionChip extends StatelessWidget {
   final Duration animationDuration;
   final Curve animationCurve;
   
+  class InputChip extends StatelessWidget {
+  final String label;
+  final Widget? avatar;
+  final VoidCallback? onDelete;
+  final VoidCallback? onSelected;
+  final bool selected;
+  final Color? selectedColor;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? disabledColor;
+  final Color? shadowColor;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? labelPadding;
+  final TextStyle? labelStyle;
+  final BorderSide? side;
+  final OutlinedBorder? shape;
+  final Clip clipBehavior;
+  final FocusNode? focusNode;
+  final bool autofocus;
+  final Color? splashColor;
+  final MaterialTapTargetSize? materialTapTargetSize;
+  final double? elevation;
+  final bool pressElevation;
+  final Color? pressColor;
+  final bool enableFeedback;
+  final bool showCheckmark;
+  final bool showIcon;
+  final IconData? icon;
+  final Color? iconColor;
+  final double? iconSize;
+  final bool animated;
+  final Duration animationDuration;
+  final Curve animationCurve;
+  final Widget? deleteIcon;
+  final bool showDeleteIcon;
+  final Color? deleteIconColor;
+  final bool allowChipTap;
+  final double? borderRadius;
+  
   const InputChip({
     super.key,
     required this.label,
+    this.avatar,
     this.onDelete,
     this.onSelected,
     this.selected = false,
     this.selectedColor,
     this.backgroundColor,
+    this.textColor,
+    this.disabledColor,
+    this.shadowColor,
+    this.padding,
+    this.labelPadding,
+    this.labelStyle,
+    this.side,
+    this.shape,
+    this.clipBehavior = Clip.none,
+    this.focusNode,
+    this.autofocus = false,
+    this.splashColor,
+    this.materialTapTargetSize,
+    this.elevation,
+    this.pressElevation = true,
+    this.pressColor,
+    this.enableFeedback = true,
+    this.showCheckmark = false,
+    this.showIcon = false,
+    this.icon,
+    this.iconColor,
+    this.iconSize,
+    this.animated = true,
+    this.animationDuration = AppConstants.animationDuration,
+    this.animationCurve = Curves.easeInOut,
+    this.deleteIcon,
+    this.showDeleteIcon = true,
+    this.deleteIconColor,
+    this.allowChipTap = true,
+    this.borderRadius,
   });
+  
+  @override
+  Widget build(BuildContext context) {
+    return CustomChip(
+      label: label,
+      avatar: avatar,
+      deleteIcon: showDeleteIcon
+          ? (deleteIcon ?? Icon(
+              Icons.close,
+              size: 16,
+              color: deleteIconColor ?? Colors.grey[600],
+            ))
+          : null,
+      onDeleted: onDelete,
+      onPressed: allowChipTap ? onSelected : null,
+      backgroundColor: backgroundColor,
+      textColor: selected ? Colors.white : textColor,
+      disabledColor: disabledColor,
+      selectedColor: selectedColor,
+      shadowColor: shadowColor,
+      padding: padding,
+      labelPadding: labelPadding,
+      labelStyle: labelStyle,
+      side: side,
+      shape: shape,
+      clipBehavior: clipBehavior,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      splashColor: splashColor,
+      materialTapTargetSize: materialTapTargetSize,
+      elevation: elevation,
+      pressElevation: pressElevation,
+      pressColor: pressColor,
+      enableFeedback: enableFeedback,
+      showCheckmark: showCheckmark,
+      isSelected: selected,
+      showIcon: showIcon,
+      icon: icon,
+      iconColor: iconColor,
+      iconSize: iconSize,
+      animated: animated,
+      animationDuration: animationDuration,
+      animationCurve: animationCurve,
+      borderRadius: borderRadius,
+    );
+  }
+}
   
   @override
   Widget build(BuildContext context) {
