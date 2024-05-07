@@ -407,6 +407,370 @@ class InfoCard extends StatelessWidget {
   final Color? backgroundColor;
   final Color? titleColor;
   final Color? subtitleColor;
+  final double? borderRadius;
+  final double? elevation;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final bool showBorder;
+  final Color? borderColor;
+  final double? borderWidth;
+  final bool showShadow;
+  final Color? shadowColor;
+  final double? shadowBlurRadius;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final bool showRipple;
+  final bool showGradient;
+  final Gradient? gradient;
+  final bool showIconBackground;
+  final Color? iconBackgroundColor;
+  final double? iconBackgroundSize;
+  final bool showAvatar;
+  final String? avatarImage;
+  final Widget? avatarWidget;
+  final bool showBadge;
+  final String? badgeText;
+  final Color? badgeColor;
+  final Color? badgeTextColor;
+  final bool showAction;
+  final String? actionText;
+  final VoidCallback? onAction;
+  final Color? actionColor;
+  final bool showTrailing;
+  final Widget? trailingWidget;
+  final IconData? trailingIcon;
+  final Color? trailingIconColor;
+  final bool showDivider;
+  final Color? dividerColor;
+  final double? dividerHeight;
+  final bool showAnimated;
+  final Duration animationDuration;
+  final Curve animationCurve;
+  final bool showHover;
+  final Color? hoverColor;
+  final double? hoverScale;
+  final bool showSelected;
+  final bool isSelected;
+  final Color? selectedColor;
+  final Color? selectedBorderColor;
+  final bool showDisabled;
+  final bool isDisabled;
+  final Color? disabledColor;
+  final Color? disabledTextColor;
+  final bool showLoading;
+  final Widget? loadingWidget;
+  final bool showError;
+  final String? errorMessage;
+  final Widget? errorWidget;
+  final VoidCallback? onRetry;
+  
+  const InfoCard({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.icon,
+    this.iconColor,
+    this.backgroundColor,
+    this.titleColor,
+    this.subtitleColor,
+    this.borderRadius,
+    this.elevation,
+    this.padding,
+    this.margin,
+    this.showBorder = false,
+    this.borderColor,
+    this.borderWidth,
+    this.showShadow = true,
+    this.shadowColor,
+    this.shadowBlurRadius,
+    this.onTap,
+    this.onLongPress,
+    this.showRipple = false,
+    this.showGradient = false,
+    this.gradient,
+    this.showIconBackground = false,
+    this.iconBackgroundColor,
+    this.iconBackgroundSize,
+    this.showAvatar = false,
+    this.avatarImage,
+    this.avatarWidget,
+    this.showBadge = false,
+    this.badgeText,
+    this.badgeColor,
+    this.badgeTextColor,
+    this.showAction = false,
+    this.actionText,
+    this.onAction,
+    this.actionColor,
+    this.showTrailing = false,
+    this.trailingWidget,
+    this.trailingIcon,
+    this.trailingIconColor,
+    this.showDivider = false,
+    this.dividerColor,
+    this.dividerHeight,
+    this.showAnimated = false,
+    this.animationDuration = AppConstants.animationDuration,
+    this.animationCurve = Curves.easeInOut,
+    this.showHover = false,
+    this.hoverColor,
+    this.hoverScale,
+    this.showSelected = false,
+    this.isSelected = false,
+    this.selectedColor,
+    this.selectedBorderColor,
+    this.showDisabled = false,
+    this.isDisabled = false,
+    this.disabledColor,
+    this.disabledTextColor,
+    this.showLoading = false,
+    this.loadingWidget,
+    this.showError = false,
+    this.errorMessage,
+    this.errorWidget,
+    this.onRetry,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    Widget card = _buildCard();
+    
+    if (showAnimated) {
+      card = TweenAnimationBuilder<double>(
+        duration: animationDuration,
+        tween: Tween<double>(begin: 0.0, end: 1.0),
+        curve: animationCurve,
+        builder: (context, value, child) {
+          return Transform.scale(
+            scale: value,
+            child: Opacity(
+              opacity: value,
+              child: child,
+            ),
+          );
+        },
+        child: card,
+      );
+    }
+    
+    if (showHover && onTap != null) {
+      card = MouseRegion(
+        child: card,
+      );
+    }
+    
+    return Container(
+      margin: margin,
+      child: card,
+    );
+  }
+  
+  Widget _buildCard() {
+    Widget cardChild = _buildCardContent();
+    
+    if (showRipple && onTap != null) {
+      cardChild = Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isDisabled || showLoading ? null : onTap,
+          onLongPress: isDisabled || showLoading ? null : onLongPress,
+          borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
+          child: cardChild,
+        ),
+      );
+    }
+    
+    return CustomCard(
+      backgroundColor: isDisabled 
+          ? (disabledColor ?? Colors.grey[300])
+          : (isSelected && showSelected 
+              ? (selectedColor ?? AppConstants.primaryColor.withOpacity(0.1))
+              : backgroundColor),
+      borderRadius: borderRadius,
+      elevation: elevation,
+      showBorder: showBorder,
+      borderColor: isSelected && showSelected 
+          ? (selectedBorderColor ?? AppConstants.primaryColor)
+          : borderColor,
+      borderWidth: borderWidth,
+      showShadow: showShadow,
+      shadowColor: shadowColor,
+      shadowBlurRadius: shadowBlurRadius,
+      showGradient: showGradient,
+      gradient: gradient,
+      onTap: showRipple ? null : (isDisabled || showLoading ? null : onTap),
+      onLongPress: showRipple ? null : (isDisabled || showLoading ? null : onLongPress),
+      child: cardChild,
+    );
+  }
+  
+  Widget _buildCardContent() {
+    if (showLoading) {
+      return loadingWidget ?? const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    
+    if (showError) {
+      return errorWidget ?? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Colors.grey[600],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              errorMessage ?? 'Something went wrong',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: onRetry,
+                child: const Text('Retry'),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+    
+    return Stack(
+      children: [
+        Padding(
+          padding: padding ?? const EdgeInsets.all(AppConstants.defaultPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (showAvatar)
+                    avatarWidget ?? (avatarImage != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.network(
+                              avatarImage!,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : (showIconBackground
+                            ? Container(
+                                width: iconBackgroundSize ?? 40,
+                                height: iconBackgroundSize ?? 40,
+                                decoration: BoxDecoration(
+                                  color: iconBackgroundColor ?? AppConstants.primaryColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Icon(
+                                  icon ?? Icons.info,
+                                  color: iconColor ?? AppConstants.primaryColor,
+                                  size: 20,
+                                ),
+                              )
+                            : Icon(
+                                icon ?? Icons.info,
+                                color: iconColor ?? AppConstants.primaryColor,
+                                size: 24,
+                              ))),
+                  if (showAvatar || icon != null) const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDisabled 
+                                ? (disabledTextColor ?? Colors.grey[500])
+                                : (titleColor ?? Colors.black87),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDisabled 
+                                  ? (disabledTextColor ?? Colors.grey[400])
+                                  : (subtitleColor ?? Colors.grey[600]),
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (showBadge && badgeText != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: badgeColor ?? Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        badgeText!,
+                        style: TextStyle(
+                          color: badgeTextColor ?? Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  if (showTrailing)
+                    trailingWidget ?? (trailingIcon != null
+                        ? Icon(
+                            trailingIcon,
+                            color: trailingIconColor ?? Colors.grey[600],
+                          )
+                        : const SizedBox.shrink()),
+                ],
+              ),
+              if (showAction && actionText != null) ...[
+                if (showDivider) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    height: dividerHeight ?? 1.0,
+                    color: dividerColor ?? Colors.grey[200],
+                  ),
+                  const SizedBox(height: 12),
+                ] else
+                  const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: isDisabled || showLoading ? null : onAction,
+                      style: TextButton.styleFrom(
+                        foregroundColor: actionColor ?? AppConstants.primaryColor,
+                      ),
+                      child: Text(actionText!),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+  final Color? subtitleColor;
   final VoidCallback? onTap;
   
   const InfoCard({
