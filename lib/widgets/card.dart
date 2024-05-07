@@ -770,17 +770,826 @@ class InfoCard extends StatelessWidget {
     );
   }
 }
-  final Color? subtitleColor;
+  class RecipeCard extends StatelessWidget {
+  final String title;
+  final String? description;
+  final String imageUrl;
+  final String? cookTime;
+  final String? difficulty;
+  final double? rating;
+  final int? servings;
+  final String? calories;
+  final List<String>? ingredients;
+  final List<String>? tags;
   final VoidCallback? onTap;
+  final VoidCallback? onFavorite;
+  final VoidCallback? onShare;
+  final VoidCallback? onCook;
+  final bool isFavorite;
+  final bool showFavorite;
+  final bool showShare;
+  final bool showCook;
+  final bool showRating;
+  final bool showCookTime;
+  final bool showDifficulty;
+  final bool showServings;
+  final bool showCalories;
+  final bool showIngredients;
+  final bool showTags;
+  final double? borderRadius;
+  final double? elevation;
+  final Color? backgroundColor;
+  final Color? titleColor;
+  final Color? subtitleColor;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final bool showBorder;
+  final Color? borderColor;
+  final double? borderWidth;
+  final bool showShadow;
+  final Color? shadowColor;
+  final double? shadowBlurRadius;
+  final bool showRipple;
+  final bool showGradient;
+  final Gradient? gradient;
+  final bool showAnimated;
+  final Duration animationDuration;
+  final Curve animationCurve;
+  final bool showHover;
+  final Color? hoverColor;
+  final double? hoverScale;
+  final bool showSelected;
+  final bool isSelected;
+  final Color? selectedColor;
+  final Color? selectedBorderColor;
+  final bool showDisabled;
+  final bool isDisabled;
+  final Color? disabledColor;
+  final Color? disabledTextColor;
+  final bool showLoading;
+  final Widget? loadingWidget;
+  final bool showError;
+  final String? errorMessage;
+  final Widget? errorWidget;
+  final VoidCallback? onRetry;
+  final double? imageHeight;
+  final double? imageWidth;
+  final BoxFit imageFit;
+  final String? placeholderImage;
+  final bool showImageOverlay;
+  final Color? imageOverlayColor;
+  final double? imageOverlayOpacity;
+  final bool showBadge;
+  final String? badgeText;
+  final Color? badgeColor;
+  final Color? badgeTextColor;
+  final bool showPremium;
+  final bool isPremium;
+  final Color? premiumColor;
+  final bool showNew;
+  final bool isNew;
+  final Color? newColor;
+  final bool showPopular;
+  final bool isPopular;
+  final Color? popularColor;
+  final bool showQuick;
+  final bool isQuick;
+  final Color? quickColor;
+  final bool showVegetarian;
+  final bool isVegetarian;
+  final Color? vegetarianColor;
+  final bool showVegan;
+  final bool isVegan;
+  final Color? veganColor;
+  final bool showGlutenFree;
+  final bool isGlutenFree;
+  final Color? glutenFreeColor;
+  final bool showDairyFree;
+  final bool isDairyFree;
+  final Color? dairyFreeColor;
+  final bool showKeto;
+  final bool isKeto;
+  final Color? ketoColor;
+  final bool showLowCarb;
+  final bool isLowCarb;
+  final Color? lowCarbColor;
+  final bool showHighProtein;
+  final bool isHighProtein;
+  final Color? highProteinColor;
+  final bool showLowFat;
+  final bool isLowFat;
+  final Color? lowFatColor;
+  final bool showLowSodium;
+  final bool isLowSodium;
+  final Color? lowSodiumColor;
+  final bool showSugarFree;
+  final bool isSugarFree;
+  final Color? sugarFreeColor;
+  final bool showHeartHealthy;
+  final bool isHeartHealthy;
+  final Color? heartHealthyColor;
   
-  const InfoCard({
+  const RecipeCard({
     super.key,
     required this.title,
-    this.subtitle,
-    this.icon,
-    this.iconColor,
+    this.description,
+    required this.imageUrl,
+    this.cookTime,
+    this.difficulty,
+    this.rating,
+    this.servings,
+    this.calories,
+    this.ingredients,
+    this.tags,
+    this.onTap,
+    this.onFavorite,
+    this.onShare,
+    this.onCook,
+    this.isFavorite = false,
+    this.showFavorite = true,
+    this.showShare = true,
+    this.showCook = true,
+    this.showRating = true,
+    this.showCookTime = true,
+    this.showDifficulty = true,
+    this.showServings = false,
+    this.showCalories = false,
+    this.showIngredients = false,
+    this.showTags = false,
+    this.borderRadius,
+    this.elevation,
     this.backgroundColor,
     this.titleColor,
+    this.subtitleColor,
+    this.padding,
+    this.margin,
+    this.showBorder = false,
+    this.borderColor,
+    this.borderWidth,
+    this.showShadow = true,
+    this.shadowColor,
+    this.shadowBlurRadius,
+    this.showRipple = true,
+    this.showGradient = false,
+    this.gradient,
+    this.showAnimated = false,
+    this.animationDuration = AppConstants.animationDuration,
+    this.animationCurve = Curves.easeInOut,
+    this.showHover = false,
+    this.hoverColor,
+    this.hoverScale,
+    this.showSelected = false,
+    this.isSelected = false,
+    this.selectedColor,
+    this.selectedBorderColor,
+    this.showDisabled = false,
+    this.isDisabled = false,
+    this.disabledColor,
+    this.disabledTextColor,
+    this.showLoading = false,
+    this.loadingWidget,
+    this.showError = false,
+    this.errorMessage,
+    this.errorWidget,
+    this.onRetry,
+    this.imageHeight,
+    this.imageWidth,
+    this.imageFit = BoxFit.cover,
+    this.placeholderImage,
+    this.showImageOverlay = false,
+    this.imageOverlayColor,
+    this.imageOverlayOpacity,
+    this.showBadge = false,
+    this.badgeText,
+    this.badgeColor,
+    this.badgeTextColor,
+    this.showPremium = false,
+    this.isPremium = false,
+    this.premiumColor,
+    this.showNew = false,
+    this.isNew = false,
+    this.newColor,
+    this.showPopular = false,
+    this.isPopular = false,
+    this.popularColor,
+    this.showQuick = false,
+    this.isQuick = false,
+    this.quickColor,
+    this.showVegetarian = false,
+    this.isVegetarian = false,
+    this.vegetarianColor,
+    this.showVegan = false,
+    this.isVegan = false,
+    this.veganColor,
+    this.showGlutenFree = false,
+    this.isGlutenFree = false,
+    this.glutenFreeColor,
+    this.showDairyFree = false,
+    this.isDairyFree = false,
+    this.dairyFreeColor,
+    this.showKeto = false,
+    this.isKeto = false,
+    this.ketoColor,
+    this.showLowCarb = false,
+    this.isLowCarb = false,
+    this.lowCarbColor,
+    this.showHighProtein = false,
+    this.isHighProtein = false,
+    this.highProteinColor,
+    this.showLowFat = false,
+    this.isLowFat = false,
+    this.lowFatColor,
+    this.showLowSodium = false,
+    this.isLowSodium = false,
+    this.lowSodiumColor,
+    this.showSugarFree = false,
+    this.isSugarFree = false,
+    this.sugarFreeColor,
+    this.showHeartHealthy = false,
+    this.isHeartHealthy = false,
+    this.heartHealthyColor,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    Widget card = _buildCard();
+    
+    if (showAnimated) {
+      card = TweenAnimationBuilder<double>(
+        duration: animationDuration,
+        tween: Tween<double>(begin: 0.0, end: 1.0),
+        curve: animationCurve,
+        builder: (context, value, child) {
+          return Transform.scale(
+            scale: value,
+            child: Opacity(
+              opacity: value,
+              child: child,
+            ),
+          );
+        },
+        child: card,
+      );
+    }
+    
+    return Container(
+      margin: margin,
+      child: card,
+    );
+  }
+  
+  Widget _buildCard() {
+    Widget cardChild = _buildCardContent();
+    
+    if (showRipple && onTap != null) {
+      cardChild = Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isDisabled || showLoading ? null : onTap,
+          borderRadius: BorderRadius.circular(borderRadius ?? AppConstants.borderRadius),
+          child: cardChild,
+        ),
+      );
+    }
+    
+    return CustomCard(
+      backgroundColor: isDisabled 
+          ? (disabledColor ?? Colors.grey[300])
+          : (isSelected && showSelected 
+              ? (selectedColor ?? AppConstants.primaryColor.withOpacity(0.1))
+              : backgroundColor),
+      borderRadius: borderRadius,
+      elevation: elevation,
+      showBorder: showBorder,
+      borderColor: isSelected && showSelected 
+          ? (selectedBorderColor ?? AppConstants.primaryColor)
+          : borderColor,
+      borderWidth: borderWidth,
+      showShadow: showShadow,
+      shadowColor: shadowColor,
+      shadowBlurRadius: shadowBlurRadius,
+      showGradient: showGradient,
+      gradient: gradient,
+      onTap: showRipple ? null : (isDisabled || showLoading ? null : onTap),
+      child: cardChild,
+    );
+  }
+  
+  Widget _buildCardContent() {
+    if (showLoading) {
+      return loadingWidget ?? const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    
+    if (showError) {
+      return errorWidget ?? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Colors.grey[600],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              errorMessage ?? 'Something went wrong',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: onRetry,
+                child: const Text('Retry'),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildImageSection(),
+        const SizedBox(height: 8),
+        _buildContentSection(),
+        if (showTags && tags != null && tags!.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _buildTagsSection(),
+        ],
+        if (showIngredients && ingredients != null && ingredients!.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _buildIngredientsSection(),
+        ],
+        const SizedBox(height: 8),
+        _buildActionSection(),
+      ],
+    );
+  }
+  
+  Widget _buildImageSection() {
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(borderRadius ?? AppConstants.borderRadius),
+          ),
+          child: Image.network(
+            imageUrl,
+            width: imageWidth ?? double.infinity,
+            height: imageHeight ?? 200,
+            fit: imageFit,
+            errorBuilder: (context, error, stackTrace) {
+              if (placeholderImage != null) {
+                return Image.network(
+                  placeholderImage!,
+                  width: imageWidth ?? double.infinity,
+                  height: imageHeight ?? 200,
+                  fit: imageFit,
+                );
+              }
+              return Container(
+                width: imageWidth ?? double.infinity,
+                height: imageHeight ?? 200,
+                color: Colors.grey[200],
+                child: const Icon(
+                  Icons.broken_image,
+                  color: Colors.grey,
+                  size: 48,
+                ),
+              );
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                width: imageWidth ?? double.infinity,
+                height: imageHeight ?? 200,
+                color: Colors.grey[200],
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            },
+          ),
+        ),
+        if (showImageOverlay)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: (imageOverlayColor ?? Colors.black).withOpacity(
+                  imageOverlayOpacity ?? 0.3,
+                ),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(borderRadius ?? AppConstants.borderRadius),
+                ),
+              ),
+            ),
+          ),
+        Positioned(
+          top: 8,
+          left: 8,
+          right: 8,
+          child: Row(
+            children: [
+              if (showBadge && badgeText != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: badgeColor ?? Colors.red,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    badgeText!,
+                    style: TextStyle(
+                      color: badgeTextColor ?? Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              const Spacer(),
+              if (showPremium && isPremium)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: premiumColor ?? Colors.amber,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'PRO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              if (showNew && isNew)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: newColor ?? Colors.green,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'NEW',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              if (showPopular && isPopular)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: popularColor ?? Colors.orange,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'POPULAR',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              if (showQuick && isQuick)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: quickColor ?? Colors.blue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'QUICK',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: _buildDietaryBadges(),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildDietaryBadges() {
+    return Column(
+      children: [
+        if (showVegetarian && isVegetarian)
+          _buildDietaryBadge('V', vegetarianColor ?? Colors.green),
+        if (showVegan && isVegan)
+          _buildDietaryBadge('VG', veganColor ?? Colors.green),
+        if (showGlutenFree && isGlutenFree)
+          _buildDietaryBadge('GF', glutenFreeColor ?? Colors.blue),
+        if (showDairyFree && isDairyFree)
+          _buildDietaryBadge('DF', dairyFreeColor ?? Colors.orange),
+        if (showKeto && isKeto)
+          _buildDietaryBadge('K', ketoColor ?? Colors.purple),
+        if (showLowCarb && isLowCarb)
+          _buildDietaryBadge('LC', lowCarbColor ?? Colors.red),
+        if (showHighProtein && isHighProtein)
+          _buildDietaryBadge('HP', highProteinColor ?? Colors.teal),
+        if (showLowFat && isLowFat)
+          _buildDietaryBadge('LF', lowFatColor ?? Colors.yellow),
+        if (showLowSodium && isLowSodium)
+          _buildDietaryBadge('LS', lowSodiumColor ?? Colors.indigo),
+        if (showSugarFree && isSugarFree)
+          _buildDietaryBadge('SF', sugarFreeColor ?? Colors.pink),
+        if (showHeartHealthy && isHeartHealthy)
+          _buildDietaryBadge('❤', heartHealthyColor ?? Colors.red),
+      ],
+    );
+  }
+  
+  Widget _buildDietaryBadge(String text, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 8,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildContentSection() {
+    return Padding(
+      padding: padding ?? const EdgeInsets.all(AppConstants.defaultPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: isDisabled 
+                  ? (disabledTextColor ?? Colors.grey[500])
+                  : (titleColor ?? Colors.black87),
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (description != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              description!,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDisabled 
+                    ? (disabledTextColor ?? Colors.grey[400])
+                    : (subtitleColor ?? Colors.grey[600]),
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          const SizedBox(height: 8),
+          _buildMetadataSection(),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildMetadataSection() {
+    return Row(
+      children: [
+        if (showRating && rating != null) ...[
+          Icon(
+            Icons.star,
+            size: 16,
+            color: Colors.amber,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            rating!.toStringAsFixed(1),
+            style: TextStyle(
+              fontSize: 14,
+              color: isDisabled 
+                  ? (disabledTextColor ?? Colors.grey[400])
+                  : (subtitleColor ?? Colors.grey[600]),
+            ),
+          ),
+        ],
+        if (showCookTime && cookTime != null) ...[
+          const SizedBox(width: 12),
+          Icon(
+            Icons.access_time,
+            size: 16,
+            color: isDisabled 
+                ? (disabledTextColor ?? Colors.grey[400])
+                : (subtitleColor ?? Colors.grey[600]),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '$cookTime min',
+            style: TextStyle(
+              fontSize: 14,
+              color: isDisabled 
+                  ? (disabledTextColor ?? Colors.grey[400])
+                  : (subtitleColor ?? Colors.grey[600]),
+            ),
+          ),
+        ],
+        if (showDifficulty && difficulty != null) ...[
+          const SizedBox(width: 12),
+          Icon(
+            Icons.signal_cellular_alt,
+            size: 16,
+            color: isDisabled 
+                ? (disabledTextColor ?? Colors.grey[400])
+                : (subtitleColor ?? Colors.grey[600]),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            difficulty!,
+            style: TextStyle(
+              fontSize: 14,
+              color: isDisabled 
+                  ? (disabledTextColor ?? Colors.grey[400])
+                  : (subtitleColor ?? Colors.grey[600]),
+            ),
+          ),
+        ],
+        if (showServings && servings != null) ...[
+          const SizedBox(width: 12),
+          Icon(
+            Icons.people,
+            size: 16,
+            color: isDisabled 
+                ? (disabledTextColor ?? Colors.grey[400])
+                : (subtitleColor ?? Colors.grey[600]),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '$servings servings',
+            style: TextStyle(
+              fontSize: 14,
+              color: isDisabled 
+                  ? (disabledTextColor ?? Colors.grey[400])
+                  : (subtitleColor ?? Colors.grey[600]),
+            ),
+          ),
+        ],
+        if (showCalories && calories != null) ...[
+          const SizedBox(width: 12),
+          Icon(
+            Icons.local_fire_department,
+            size: 16,
+            color: isDisabled 
+                ? (disabledTextColor ?? Colors.grey[400])
+                : (subtitleColor ?? Colors.grey[600]),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '$calories cal',
+            style: TextStyle(
+              fontSize: 14,
+              color: isDisabled 
+                  ? (disabledTextColor ?? Colors.grey[400])
+                  : (subtitleColor ?? Colors.grey[600]),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+  
+  Widget _buildTagsSection() {
+    return Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      children: tags!.map((tag) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: AppConstants.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          tag,
+          style: TextStyle(
+            fontSize: 12,
+            color: AppConstants.primaryColor,
+          ),
+        ),
+      )).toList(),
+    );
+  }
+  
+  Widget _buildIngredientsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ingredients:',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: isDisabled 
+                ? (disabledTextColor ?? Colors.grey[400])
+                : (subtitleColor ?? Colors.grey[600]),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 4,
+          runSpacing: 4,
+          children: ingredients!.take(3).map((ingredient) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              ingredient,
+              style: TextStyle(
+                fontSize: 10,
+                color: isDisabled 
+                    ? (disabledTextColor ?? Colors.grey[400])
+                    : (subtitleColor ?? Colors.grey[600]),
+              ),
+            ),
+          )).toList(),
+        ),
+        if (ingredients!.length > 3) ...[
+          const SizedBox(width: 4),
+          Text(
+            '+${ingredients!.length - 3} more',
+            style: TextStyle(
+              fontSize: 10,
+              color: isDisabled 
+                  ? (disabledTextColor ?? Colors.grey[400])
+                  : AppConstants.primaryColor,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+  
+  Widget _buildActionSection() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            if (showFavorite)
+              IconButton(
+                onPressed: isDisabled || showLoading ? null : onFavorite,
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : Colors.grey[600],
+                ),
+              ),
+            if (showShare)
+              IconButton(
+                onPressed: isDisabled || showLoading ? null : onShare,
+                icon: const Icon(
+                  Icons.share,
+                  color: Colors.grey[600],
+                ),
+              ),
+          ],
+        ),
+        if (showCook)
+          ElevatedButton(
+            onPressed: isDisabled || showLoading ? null : onCook,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppConstants.primaryColor,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Cook'),
+          ),
+      ],
+    );
+  }
+}
     this.subtitleColor,
     this.onTap,
   });
