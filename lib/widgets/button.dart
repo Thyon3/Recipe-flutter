@@ -2477,3 +2477,131 @@ class IconButton extends StatelessWidget {
     );
   }
 }
+
+/// Quantum Button with consciousness-based interactions
+class QuantumButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final double? width;
+  final double? height;
+  final bool enableQuantumEffects;
+  final Duration? animationDuration;
+
+  const QuantumButton({
+    Key? key,
+    required this.label,
+    required this.onPressed,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.width,
+    this.height,
+    this.enableQuantumEffects = true,
+    this.animationDuration,
+  }) : super(key: key);
+
+  @override
+  _QuantumButtonState createState() => _QuantumButtonState();
+}
+
+class _QuantumButtonState extends State<QuantumButton>
+    with TickerProviderStateMixin {
+  late AnimationController _quantumController;
+  late AnimationController _consciousnessController;
+  late Animation<double> _quantumAnimation;
+  late Animation<double> _consciousnessAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _quantumController = AnimationController(
+      duration: widget.animationDuration ?? const Duration(seconds: 2),
+      vsync: this,
+    );
+    _consciousnessController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _quantumAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _quantumController,
+      curve: Curves.easeInOut,
+    ));
+
+    _consciousnessAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _consciousnessController,
+      curve: Curves.elasticOut,
+    ));
+
+    if (widget.enableQuantumEffects) {
+      _quantumController.repeat(reverse: true);
+      _consciousnessController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _quantumController.dispose();
+    _consciousnessController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_quantumController, _consciousnessController]),
+      builder: (context, child) {
+        return Container(
+          width: widget.width ?? 120,
+          height: widget.height ?? 48,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: RadialGradient(
+              center: Alignment.center,
+              radius: 1.0 + _quantumAnimation.value * 0.5,
+              colors: [
+                widget.backgroundColor ?? AppConstants.primaryColor,
+                (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(
+                  0.6 + _consciousnessAnimation.value * 0.4,
+                ),
+              ],
+            ),
+            boxShadow: widget.enableQuantumEffects ? [
+              BoxShadow(
+                color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                    .withOpacity(0.3 * _quantumAnimation.value),
+                blurRadius: 12 + _consciousnessAnimation.value * 8,
+                spreadRadius: 2 + _quantumAnimation.value * 2,
+              ),
+            ] : null,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: widget.onPressed,
+              child: Center(
+                child: Text(
+                  widget.label,
+                  style: TextStyle(
+                    color: widget.foregroundColor ?? Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
