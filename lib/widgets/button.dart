@@ -2605,3 +2605,173 @@ class _QuantumButtonState extends State<QuantumButton>
     );
   }
 }
+
+/// Neural Network Button with AI-powered interactions
+class NeuralButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final double? width;
+  final double? height;
+  final bool enableNeuralEffects;
+  final int? neuralLayers;
+  final Duration? pulseDuration;
+
+  const NeuralButton({
+    Key? key,
+    required this.label,
+    required this.onPressed,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.width,
+    this.height,
+    this.enableNeuralEffects = true,
+    this.neuralLayers = 3,
+    this.pulseDuration,
+  }) : super(key: key);
+
+  @override
+  _NeuralButtonState createState() => _NeuralButtonState();
+}
+
+class _NeuralButtonState extends State<NeuralButton>
+    with TickerProviderStateMixin {
+  late List<AnimationController> _layerControllers;
+  late List<Animation<double>> _layerAnimations;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _layerControllers = [];
+    _layerAnimations = [];
+    
+    for (int i = 0; i < widget.neuralLayers!; i++) {
+      final controller = AnimationController(
+        duration: Duration(milliseconds: 800 + (i * 200)),
+        vsync: this,
+      );
+      _layerControllers.add(controller);
+      _layerAnimations.add(
+        Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: controller,
+            curve: Curves.easeInOut,
+          ),
+        ),
+      );
+    }
+
+    _pulseController = AnimationController(
+      duration: widget.pulseDuration ?? const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _pulseAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.2,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+
+    if (widget.enableNeuralEffects) {
+      for (int i = 0; i < _layerControllers.length; i++) {
+        _layerControllers[i].repeat(reverse: true);
+      }
+      _pulseController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _layerControllers) {
+      controller.dispose();
+    }
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([..._layerControllers, _pulseController]),
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Neural network layers
+            for (int i = 0; i < widget.neuralLayers!; i++)
+              Positioned(
+                child: Container(
+                  width: (widget.width ?? 120) * (1.0 + i * 0.1 * _layerAnimations[i].value),
+                  height: (widget.height ?? 48) * (1.0 + i * 0.1 * _layerAnimations[i].value),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                          .withOpacity(0.3 * _layerAnimations[i].value),
+                      width: 1.0,
+                    ),
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 1.0,
+                      colors: [
+                        Colors.transparent,
+                        (widget.backgroundColor ?? AppConstants.primaryColor)
+                            .withOpacity(0.1 * _layerAnimations[i].value),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            // Main button
+            Container(
+              width: widget.width ?? 120,
+              height: widget.height ?? 48,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [
+                    widget.backgroundColor ?? AppConstants.primaryColor,
+                    (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: widget.enableNeuralEffects ? [
+                  BoxShadow(
+                    color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                        .withOpacity(0.4 * _pulseAnimation.value),
+                    blurRadius: 8 * _pulseAnimation.value,
+                    spreadRadius: 1,
+                  ),
+                ] : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: widget.onPressed,
+                  child: Center(
+                    child: Text(
+                      widget.label,
+                      style: TextStyle(
+                        color: widget.foregroundColor ?? Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
