@@ -3171,3 +3171,220 @@ class _PlasmaButtonState extends State<PlasmaButton>
     );
   }
 }
+
+/// Dimensional Button with portal-like effects
+class DimensionalButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final double? width;
+  final double? height;
+  final bool enableDimensionalEffects;
+  final Duration? dimensionalDuration;
+  final int? dimensionCount;
+
+  const DimensionalButton({
+    Key? key,
+    required this.label,
+    required this.onPressed,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.width,
+    this.height,
+    this.enableDimensionalEffects = true,
+    this.dimensionalDuration,
+    this.dimensionCount = 3,
+  }) : super(key: key);
+
+  @override
+  _DimensionalButtonState createState() => _DimensionalButtonState();
+}
+
+class _DimensionalButtonState extends State<DimensionalButton>
+    with TickerProviderStateMixin {
+  late List<AnimationController> _dimensionControllers;
+  late List<Animation<double>> _dimensionAnimations;
+  late AnimationController _portalController;
+  late Animation<double> _portalAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _dimensionControllers = [];
+    _dimensionAnimations = [];
+    
+    for (int i = 0; i < widget.dimensionCount!; i++) {
+      final controller = AnimationController(
+        duration: Duration(milliseconds: 1000 + (i * 300)),
+        vsync: this,
+      );
+      _dimensionControllers.add(controller);
+      _dimensionAnimations.add(
+        Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: controller,
+            curve: Curves.easeInOut,
+          ),
+        ),
+      );
+    }
+
+    _portalController = AnimationController(
+      duration: widget.dimensionalDuration ?? const Duration(milliseconds: 2500),
+      vsync: this,
+    );
+
+    _portalAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _portalController,
+      curve: Curves.easeInOut,
+    ));
+
+    if (widget.enableDimensionalEffects) {
+      for (int i = 0; i < _dimensionControllers.length; i++) {
+        _dimensionControllers[i].repeat(reverse: true);
+      }
+      _portalController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _dimensionControllers) {
+      controller.dispose();
+    }
+    _portalController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([..._dimensionControllers, _portalController]),
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Dimensional layers
+            for (int i = 0; i < widget.dimensionCount!; i++)
+              Positioned(
+                child: Transform.rotate(
+                  angle: _dimensionAnimations[i].value * 2 * 3.14159 * (i + 1) / widget.dimensionCount!,
+                  child: Container(
+                    width: (widget.width ?? 120) * (1.0 + i * 0.15),
+                    height: (widget.height ?? 48) * (1.0 + i * 0.15),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: RadialGradient(
+                        center: Alignment.center,
+                        radius: 1.0,
+                        colors: [
+                          Colors.transparent,
+                          (widget.backgroundColor ?? AppConstants.primaryColor)
+                              .withOpacity(0.15 * (1 - i * 0.3)),
+                        ],
+                      ),
+                      border: Border.all(
+                        color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                            .withOpacity(0.4 * _dimensionAnimations[i].value * (1 - i * 0.2)),
+                        width: 2.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            // Portal effect
+            if (widget.enableDimensionalEffects)
+              Positioned(
+                child: Container(
+                  width: (widget.width ?? 120) * (1.0 + _portalAnimation.value * 0.3),
+                  height: (widget.height ?? 48) * (1.0 + _portalAnimation.value * 0.3),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: SweepGradient(
+                      center: Alignment.center,
+                      startAngle: 0.0,
+                      endAngle: 2 * 3.14159,
+                      colors: [
+                        Colors.transparent,
+                        (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(0.3),
+                        Colors.transparent,
+                        (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(0.5),
+                        Colors.transparent,
+                      ],
+                      stops: [0.0, 0.2, 0.4, 0.6, 1.0],
+                      transform: GradientRotation(_portalAnimation.value * 2 * 3.14159),
+                    ),
+                  ),
+                ),
+              ),
+            // Main button
+            Container(
+              width: widget.width ?? 120,
+              height: widget.height ?? 48,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [
+                    widget.backgroundColor ?? AppConstants.primaryColor,
+                    (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(0.8),
+                    (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(0.6),
+                    (widget.backgroundColor ?? AppConstants.primaryColor),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: widget.enableDimensionalEffects ? [
+                  BoxShadow(
+                    color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                        .withOpacity(0.6 * _portalAnimation.value),
+                    blurRadius: 16 * _portalAnimation.value,
+                    spreadRadius: 2,
+                  ),
+                  BoxShadow(
+                    color: Colors.purple.withOpacity(0.4 * _dimensionAnimations[0].value),
+                    blurRadius: 12,
+                    spreadRadius: 1,
+                  ),
+                ] : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: widget.onPressed,
+                  child: Center(
+                    child: Text(
+                      widget.label,
+                      style: TextStyle(
+                        color: widget.foregroundColor ?? Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.4,
+                        shadows: widget.enableDimensionalEffects ? [
+                          Shadow(
+                            color: Colors.purple.withOpacity(0.8 * _portalAnimation.value),
+                            blurRadius: 8,
+                            offset: Offset(0, 0),
+                          ),
+                          Shadow(
+                            color: Colors.blue.withOpacity(0.6 * _dimensionAnimations[1].value),
+                            blurRadius: 4,
+                            offset: Offset(0, 0),
+                          ),
+                        ] : null,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
