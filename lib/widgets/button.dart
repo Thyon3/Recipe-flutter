@@ -2775,3 +2775,203 @@ class _NeuralButtonState extends State<NeuralButton>
     );
   }
 }
+
+/// Holographic Button with 3D projection effects
+class HolographicButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final double? width;
+  final double? height;
+  final bool enableHologramEffect;
+  final Duration? hologramDuration;
+  final double? hologramIntensity;
+
+  const HolographicButton({
+    Key? key,
+    required this.label,
+    required this.onPressed,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.width,
+    this.height,
+    this.enableHologramEffect = true,
+    this.hologramDuration,
+    this.hologramIntensity = 0.8,
+  }) : super(key: key);
+
+  @override
+  _HolographicButtonState createState() => _HolographicButtonState();
+}
+
+class _HolographicButtonState extends State<HolographicButton>
+    with TickerProviderStateMixin {
+  late AnimationController _hologramController;
+  late AnimationController _glowController;
+  late Animation<double> _hologramAnimation;
+  late Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _hologramController = AnimationController(
+      duration: widget.hologramDuration ?? const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    _glowController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _hologramAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _hologramController,
+      curve: Curves.easeInOut,
+    ));
+
+    _glowAnimation = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _glowController,
+      curve: Curves.easeInOut,
+    ));
+
+    if (widget.enableHologramEffect) {
+      _hologramController.repeat(reverse: true);
+      _glowController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _hologramController.dispose();
+    _glowController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_hologramController, _glowController]),
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Holographic projection layers
+            for (int i = 0; i < 3; i++)
+              Positioned(
+                child: Transform.translate(
+                  offset: Offset(
+                    _hologramAnimation.value * (i - 1) * 2,
+                    _hologramAnimation.value * (i - 1) * 1,
+                  ),
+                  child: Container(
+                    width: widget.width ?? 120,
+                    height: widget.height ?? 48,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        colors: [
+                          (widget.backgroundColor ?? AppConstants.primaryColor)
+                              .withOpacity(0.1 * widget.hologramIntensity!),
+                          (widget.backgroundColor ?? AppConstants.primaryColor)
+                              .withOpacity(0.05 * widget.hologramIntensity!),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(
+                        color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                            .withOpacity(0.2 * _glowAnimation.value * widget.hologramIntensity!),
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            // Main button with holographic glow
+            Container(
+              width: widget.width ?? 120,
+              height: widget.height ?? 48,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [
+                    widget.backgroundColor ?? AppConstants.primaryColor,
+                    (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(0.7),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: widget.enableHologramEffect ? [
+                  BoxShadow(
+                    color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                        .withOpacity(0.6 * _glowAnimation.value * widget.hologramIntensity!),
+                    blurRadius: 16 * _glowAnimation.value,
+                    spreadRadius: 2,
+                  ),
+                  BoxShadow(
+                    color: Colors.cyan.withOpacity(0.3 * _hologramAnimation.value * widget.hologramIntensity!),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ] : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: widget.onPressed,
+                  child: Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Holographic text effect
+                        for (int i = 0; i < 2; i++)
+                          Positioned(
+                            left: _hologramAnimation.value * (i - 0.5) * 1,
+                            top: _hologramAnimation.value * (i - 0.5) * 0.5,
+                            child: Text(
+                              widget.label,
+                              style: TextStyle(
+                                color: (widget.foregroundColor ?? Colors.white)
+                                    .withOpacity(0.3 * widget.hologramIntensity!),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                        // Main text
+                        Text(
+                          widget.label,
+                          style: TextStyle(
+                            color: widget.foregroundColor ?? Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                            shadows: widget.enableHologramEffect ? [
+                              Shadow(
+                                color: Colors.cyan.withOpacity(0.8 * _glowAnimation.value * widget.hologramIntensity!),
+                                blurRadius: 4,
+                                offset: Offset(0, 0),
+                              ),
+                            ] : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
