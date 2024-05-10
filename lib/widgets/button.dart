@@ -2975,3 +2975,199 @@ class _HolographicButtonState extends State<HolographicButton>
     );
   }
 }
+
+/// Plasma Button with energy field effects
+class PlasmaButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final double? width;
+  final double? height;
+  final bool enablePlasmaEffects;
+  final Duration? plasmaDuration;
+  final double? plasmaIntensity;
+
+  const PlasmaButton({
+    Key? key,
+    required this.label,
+    required this.onPressed,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.width,
+    this.height,
+    this.enablePlasmaEffects = true,
+    this.plasmaDuration,
+    this.plasmaIntensity = 1.0,
+  }) : super(key: key);
+
+  @override
+  _PlasmaButtonState createState() => _PlasmaButtonState();
+}
+
+class _PlasmaButtonState extends State<PlasmaButton>
+    with TickerProviderStateMixin {
+  late AnimationController _plasmaController;
+  late AnimationController _energyController;
+  late Animation<double> _plasmaAnimation;
+  late Animation<double> _energyAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _plasmaController = AnimationController(
+      duration: widget.plasmaDuration ?? const Duration(milliseconds: 1800),
+      vsync: this,
+    );
+    _energyController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _plasmaAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _plasmaController,
+      curve: Curves.easeInOut,
+    ));
+
+    _energyAnimation = Tween<double>(
+      begin: 0.5,
+      end: 1.5,
+    ).animate(CurvedAnimation(
+      parent: _energyController,
+      curve: Curves.easeInOut,
+    ));
+
+    if (widget.enablePlasmaEffects) {
+      _plasmaController.repeat(reverse: true);
+      _energyController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _plasmaController.dispose();
+    _energyController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_plasmaController, _energyController]),
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Plasma energy field
+            for (int i = 0; i < 4; i++)
+              Positioned(
+                child: Container(
+                  width: (widget.width ?? 120) * (1.2 + i * 0.1 * _plasmaAnimation.value),
+                  height: (widget.height ?? 48) * (1.2 + i * 0.1 * _plasmaAnimation.value),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 1.0,
+                      colors: [
+                        Colors.transparent,
+                        (widget.backgroundColor ?? AppConstants.primaryColor)
+                            .withOpacity(0.1 * widget.plasmaIntensity! * (1 - i * 0.2)),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                          .withOpacity(0.3 * _energyAnimation.value * widget.plasmaIntensity! * (1 - i * 0.2)),
+                      width: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+            // Main button with plasma glow
+            Container(
+              width: widget.width ?? 120,
+              height: widget.height ?? 48,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [
+                    widget.backgroundColor ?? AppConstants.primaryColor,
+                    (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(0.8),
+                    (widget.backgroundColor ?? AppConstants.primaryColor).withOpacity(0.6),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: widget.enablePlasmaEffects ? [
+                  BoxShadow(
+                    color: (widget.backgroundColor ?? AppConstants.primaryColor)
+                        .withOpacity(0.8 * _energyAnimation.value * widget.plasmaIntensity!),
+                    blurRadius: 20 * _energyAnimation.value,
+                    spreadRadius: 3,
+                  ),
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.4 * _plasmaAnimation.value * widget.plasmaIntensity!),
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                  ),
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3 * _energyAnimation.value * widget.plasmaIntensity!),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ] : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: widget.onPressed,
+                  child: Center(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            Colors.white.withOpacity(0.1 * _plasmaAnimation.value * widget.plasmaIntensity!),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                      child: Text(
+                        widget.label,
+                        style: TextStyle(
+                          color: widget.foregroundColor ?? Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.3,
+                          shadows: widget.enablePlasmaEffects ? [
+                            Shadow(
+                              color: Colors.orange.withOpacity(0.8 * _energyAnimation.value * widget.plasmaIntensity!),
+                              blurRadius: 6,
+                              offset: Offset(0, 0),
+                            ),
+                            Shadow(
+                              color: Colors.blue.withOpacity(0.6 * _plasmaAnimation.value * widget.plasmaIntensity!),
+                              blurRadius: 4,
+                              offset: Offset(0, 0),
+                            ),
+                          ] : null,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
